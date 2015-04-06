@@ -6,7 +6,7 @@ Item {
 
     property alias color: fab.color
     property string iconName: "capture"
-    property real  circleWidth: (43/270)*parent.width
+    property real circleWidth: (43/270)*parent.width
     property string location: "center"
 
     anchors { margins: 0.5*width; bottom: parent.bottom }
@@ -28,6 +28,10 @@ Item {
 
         radius: 0.5*width
 
+        Behavior on color {
+            ColorAnimation {}
+        }
+
         Image {
             id: icon
 
@@ -41,17 +45,17 @@ Item {
 
             function getIconResolution (name) {
                 if (height < 24)
-                    return "img/ic_"+name+"-18dp.png";
+                    return "qrc:///img/img/ic_"+name+"-18dp.png";
                 else if (height >= 24 && height < 36)
-                    return "img/ic_"+name+"-24dp.png";
+                    return "qrc:///img/img/ic_"+name+"-24dp.png";
                 else if (height >= 36 && height < 48)
-                    return "img/ic_"+name+"-36dp.png";
+                    return "qrc:///img/img/ic_"+name+"-36dp.png";
                 else if (height >= 48 && height < 72)
-                    return "img/ic_"+name+"-48dp.png";
+                    return "qrc:///img/img/ic_"+name+"-48dp.png";
                 else if (height >= 72 && height < 96)
-                    return "img/ic_"+name+"-72dp.png";
+                    return "qrc:///img/img/ic_"+name+"-72dp.png";
                 else
-                    return "img/ic_"+name+"-96dp.png";
+                    return "qrc:///img/img/ic_"+name+"-96dp.png";
             }
         }
 

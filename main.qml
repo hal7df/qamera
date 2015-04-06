@@ -1,4 +1,4 @@
-import QtQuick 2.2
+import QtQuick 2.3
 import QtQuick.Window 2.1
 import QtMultimedia 5.4
 
@@ -6,9 +6,17 @@ Rectangle {
     width: 400
     height: 800
 
-    state: "PhotoCapture"
-
     color: "#000000"
+
+    Component.onCompleted: {
+        camera.start();
+    }
+
+    Settings {
+        id: settings
+        onFlashTypeChanged: camera.getFlash()
+        onWhiteBalanceChanged: camera.getWhiteBalance()
+    }
 
     Text {
         anchors.centerIn: parent
@@ -17,37 +25,12 @@ Rectangle {
         color: "#ffffff"
     }
 
-    states: [
-        State {
-            name: "PhotoCapture"
-            StateChangeScript {
-                script: {
-                    camera.captureMode = Camera.CaptureStillImage
-                    camera.start()
-                }
-            }
-        },
-        State {
-            name: "VideoCapture"
-            StateChangeScript {
-                script: {
-                    camera.captureMode = Camera.CaptureVideo
-                    camera.start()
-                }
-            }
-        }
-    ]
-
     Camera {
         id: camera
 
-        captureMode: Camera.CaptureStillImage
+        captureMode: settings.cameraMode == 0 ? Camera.CaptureStillImage : Camera.CaptureVideo
 
-        position: Camera.BackFace
-
-        imageProcessing {
-            whiteBalanceMode: CameraImageProcessing.WhiteBalanceFlash
-        }
+        position: settings.cameraFace == 0 ? Camera.BackFace : Camera.FrontFace
 
         exposure {
             exposureCompensation: 0
@@ -64,6 +47,49 @@ Rectangle {
         videoRecorder {
             resolution: "1920x1080"
             frameRate: 29.97
+        }
+
+        Component.onCompleted: {
+            getFlash();
+            getWhiteBalance();
+        }
+
+        function getFlash ()
+        {
+            switch (settings.flashType)
+            {
+            case 0:
+                flash.mode = Camera.FlashOff;
+                break;
+            case 1:
+                flash.mode = Camera.FlashOn;
+                break;
+            case 2:
+                flash.mode = Camera.FlashAuto;
+                break;
+            }
+        }
+
+        function getWhiteBalance ()
+        {
+            switch (settings.whiteBalance)
+            {
+            case 0:
+                imageProcessing.whiteBalanceMode = CameraImageProcessing.WhiteBalanceAuto;
+                break;
+            case 1:
+                imageProcessing.whiteBalanceMode = CameraImageProcessing.WhiteBalanceCloudy;
+                break;
+            case 2:
+                imageProcessing.whiteBalanceMode = CameraImageProcessing.WhiteBalanceFluorescent;
+                break;
+            case 3:
+                imageProcessing.whiteBalanceMode = CameraImageProcessing.WhiteBalanceSunlight;
+                break;
+            case 4:
+                imageProcessing.whiteBalanceMode = CameraImageProcessing.WhiteBalanceTungsten;
+                break;
+            }
         }
     }
 
@@ -83,6 +109,19 @@ Rectangle {
         autoOrientation: true
     }
 
+    MultiPointTouchArea {
+        id: zoomArea
+
+        minimumTouchPoints: 2
+        maximumTouchPoints: 2
+    }
+
+    QuickDrawer {
+        id: drawer
+
+        config: settings
+    }
+
     ShutterFlash {
         id: shutter
         z: 1
@@ -94,12 +133,28 @@ Rectangle {
         id: cameraAction
 
         z: 10
+        visible: !drawer.open
 
-        iconName: "capture"
-        color: "#0099CC"
+        scale: 1-drawer.drawerPosition
+        opacity: drawer.drawerPosition < 0.25 ? 1-(4*drawer.drawerPosition) : 0
+
+        iconName: settings.cameraMode == 0 ? "capture" : (camera.videoRecorder.recorderState == CameraRecorder.StoppedState ? "record" : "stop")
+        color: settings.cameraMode == 0 ? "#0099CC" : "#CC0000"
 
         onClicked: {
-            camera.imageCapture.capture();
+            if (settings.cameraMode == 0)
+                camera.imageCapture.capture();
+            else
+            {
+                if (camera.videoRecorder.recorderState == CameraRecorder.StoppedState)
+                    camera.videoRecorder.record();
+                else
+                    camera.videoRecorder.stop();
+            }
+        }
+
+        Behavior on rotation {
+            RotationAnimation { easing: Easing.InOutQuad }
         }
     }
 }

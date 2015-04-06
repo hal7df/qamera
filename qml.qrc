@@ -2,6 +2,12 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>FloatingActionButton.qml</file>
+        <file>ShutterFlash.qml</file>
+        <file>QuickDrawer.qml</file>
+        <file>IconWidget.qml</file>
+        <file>Settings.qml</file>
+    </qresource>
+    <qresource prefix="/img">
         <file>img/ic_camera-front-18dp.png</file>
         <file>img/ic_camera-front-24dp.png</file>
         <file>img/ic_camera-front-36dp.png</file>
@@ -116,6 +122,5 @@
         <file>img/ic_wb-tungsten-48dp.png</file>
         <file>img/ic_wb-tungsten-72dp.png</file>
         <file>img/ic_wb-tungsten-96dp.png</file>
-        <file>ShutterFlash.qml</file>
     </qresource>
 </RCC>
